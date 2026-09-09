@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhruvi Jain — Azure Blob Storage App</title>
+<style>
+  :root {
+    --primary: #0078D4;
+    --primary-dark: #005a9e;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1b1f23;
+    --muted: #6b7280;
+    --border: #e2e5e9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 28px 40px;
+  }
+  header h1 { margin: 0; font-size: 1.6rem; }
+  header p { margin: 6px 0 0; opacity: 0.9; font-size: 0.95rem; }
+  main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .upload-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  input[type="file"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fafafa;
+  }
+  button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--primary-dark); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+  }
+  th { color: var(--muted); font-weight: 600; }
+  a.file-link { color: var(--primary); text-decoration: none; font-weight: 500; }
+  a.file-link:hover { text-decoration: underline; }
+  .empty { color: var(--muted); padding: 20px 0; text-align: center; }
+  .flash {
+    background: #e6f4ea;
+    border: 1px solid #b7e0c3;
+    color: #1e5e34;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  .error {
+    background: #fdecea;
+    border: 1px solid #f5c2c0;
+    color: #8a2c26;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📁 Dhruvi Jain — Cloud File Manager</h1>
+  <p>Flask + Azure Blob Storage · Container: <strong>{{ container }}</strong></p>
+</header>
+
+<main>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if error %}
+    <div class="error">Error connecting to storage: {{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <h2>⬆️ Upload a file</h2>
+    <form class="upload-row" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" required>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>🗂️ Files in storage</h2>
+    {% if blobs %}
+    <table>
+      <thead>
+        <tr><th>File name</th><th>Size (KB)</th><th>Last modified</th></tr>
+      </thead>
+      <tbody>
+        {% for b in blobs %}
+        <tr>
+          <td><a class="file-link" href="{{ b.url }}" target="_blank" rel="noopener">{{ b.name }}</a></td>
+          <td>{{ b.size_kb }}</td>
+          <td>{{ b.last_modified }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">No files uploaded yet. Use the form above to add one.</div>
+    {% endif %}
+  </div>
+</main>
+
+<footer>Azure PaaS demo · App Service + Blob Storage · by Dhruvi Jain</footer>
+
+</body>
+</html>
